@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITR Deadline Dashboard</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --card: #fff;
+            --text: #18212f;
+            --muted: #6b7280;
+            --primary: #4f46e5;
+            --border: #e5e7eb;
+            --green: #16a34a;
+            --orange: #ea580c;
+            --red: #dc2626
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        header {
+            background: linear-gradient(135deg, #111827, #312e81);
+            color: #fff;
+            padding: 28px 5%
+        }
+
+        .header {
+            max-width: 1250px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center
+        }
+
+        h1 {
+            margin: 0 0 7px;
+            font-size: 30px
+        }
+
+        .sub {
+            margin: 0;
+            color: #d1d5db
+        }
+
+        .date-now {
+            font-size: 14px;
+            color: #e0e7ff
+        }
+
+        main {
+            max-width: 1250px;
+            margin: 30px auto;
+            padding: 0 20px
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 17px;
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .primary {
+            background: var(--primary);
+            color: white
+        }
+
+        .secondary {
+            background: #eef2ff;
+            color: #3730a3
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 8px 25px #1118270a;
+            position: relative;
+            overflow: hidden
+        }
+
+        .card:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: var(--primary)
+        }
+
+        .card.green:before {
+            background: var(--green)
+        }
+
+        .card.orange:before {
+            background: var(--orange)
+        }
+
+        .card.red:before {
+            background: var(--red)
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .icon {
+            font-size: 28px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 6px 9px;
+            border-radius: 20px;
+            background: #ecfdf5;
+            color: #15803d;
+            height: max-content
+        }
+
+        .badge.orange {
+            background: #fff7ed;
+            color: #c2410c
+        }
+
+        .badge.red {
+            background: #fef2f2;
+            color: #b91c1c
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 18px 0 5px
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 14px
+        }
+
+        .deadline {
+            font-size: 30px;
+            font-weight: 900;
+            margin: 15px 0 4px
+        }
+
+        .days {
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 18px
+        }
+
+        .info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px
+        }
+
+        .info div {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 10px
+        }
+
+        .label {
+            font-size: 11px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 4px
+        }
+
+        .value {
+            font-weight: 700;
+            font-size: 14px
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px
+        }
+
+        .actions button {
+            flex: 1;
+            padding: 9px
+        }
+
+        .empty {
+            background: white;
+            border: 1px dashed #cbd5e1;
+            padding: 30px;
+            text-align: center;
+            border-radius: 16px;
+            margin-top: 20px
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #11182799;
+            z-index: 10;
+            padding: 20px;
+            overflow: auto
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal-box {
+            background: white;
+            width: min(720px, 100%);
+            border-radius: 20px;
+            padding: 25px
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px
+        }
+
+        .close {
+            background: #f3f4f6;
+            font-size: 18px;
+            padding: 7px 11px
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .full {
+            grid-column: 1/-1
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 700
+        }
+
+        input,
+        select,
+        textarea {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 11px;
+            font: inherit;
+            outline: none
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px #4f46e51a
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical
+        }
+
+        .form-actions {
+            grid-column: 1/-1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 5px
+        }
+
+        @media(max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        @media(max-width:650px) {
+            .header {
+                display: block
+            }
+
+            .date-now {
+                margin-top: 12px
+            }
+
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            form {
+                grid-template-columns: 1fr
+            }
+
+            .full {
+                grid-column: auto
+            }
+
+            .form-actions {
+                grid-column: auto
+            }
+
+            .toolbar {
+                align-items: flex-start;
+                flex-direction: column
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header">
+            <div>
+                <h1>📊 ITR Deadline Dashboard</h1>
+                <p class="sub">Manage income tax return deadlines from one place.</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px"><a href="index.html" class="secondary" style="text-decoration:none">← Home</a><div class="date-now" id="today"></div></div>
+        </div>
+    </header>
+
+    <main>
+        <div class="toolbar">
+            <div>
+                <h2 style="margin:0">Tax Return Deadlines</h2>
+                <p class="muted" style="margin:5px 0">All information below is editable.</p>
+            </div><button class="primary" onclick="openForm()">＋ Add Deadline</button>
+        </div>
+        <div class="grid" id="cards"></div>
+        <div id="empty" class="empty" style="display:none">No deadlines added. Click <b>Add Deadline</b> to create one.
+        </div>
+    </main>
+
+    <div class="modal" id="modal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="modalTitle" style="margin:0">Edit Deadline</h2><button class="close"
+                    onclick="closeForm()">×</button>
+            </div>
+            <form id="form">
+                <input type="hidden" id="editId">
+                <div class="field"><label>Business / Taxpayer Type</label><input id="business" required></div>
+                <div class="field"><label>ITR Form Number</label><input id="itr" placeholder="e.g. ITR-1 / ITR-4"></div>
+                <div class="field"><label>Financial Year</label><input id="fy" placeholder="2025-26"></div>
+                <div class="field"><label>Assessment Year</label><input id="ay" placeholder="2026-27"></div>
+                <div class="field"><label>Last Date</label><input id="lastDate" type="date" required></div>
+                <div class="field"><label>Extension Date (optional)</label><input id="extension" type="date"></div>
+                <div class="field"><label>Icon</label><input id="icon" placeholder="👤"></div>
+                <div class="field"><label>Theme</label><select id="theme">
+                        <option value="green">Green</option>
+                        <option value="orange">Orange</option>
+                        <option value="red">Red</option>
+                    </select></div>
+                <div class="field"><label>Tax Audit Applicable</label><select id="audit">
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select></div>
+                <div class="field"><label>Priority</label><select id="priority">
+                        <option>Normal</option>
+                        <option>Important</option>
+                        <option>Urgent</option>
+                    </select></div>
+                <div class="field full"><label>Description</label><textarea id="description"
+                        placeholder="Add any notes or details..."></textarea></div>
+                <div class="field"><label>Active</label><select id="active">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select></div>
+                <div class="form-actions"><button type="button" class="secondary"
+                        onclick="closeForm()">Cancel</button><button class="primary">Save Changes</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const KEY = "itr_deadlines_v1";
+        const defaults = [
+            { id: crypto.randomUUID(), business: "Individual / Salaried", itr: "ITR-1 / ITR-4", fy: "2025-26", ay: "2026-27", lastDate: "2026-07-31", extension: "", icon: "👤", theme: "green", audit: "No", priority: "Normal", description: "For eligible individuals and salaried taxpayers.", active: true },
+            { id: crypto.randomUUID(), business: "Business / Professional — No Audit", itr: "ITR-3 / ITR-4", fy: "2025-26", ay: "2026-27", lastDate: "2026-07-31", extension: "", icon: "💼", theme: "orange", audit: "No", priority: "Important", description: "Business or professional income where tax audit is not applicable.", active: true },
+            { id: crypto.randomUUID(), business: "Business — Tax Audit Applicable", itr: "ITR-3 / ITR-5 / ITR-6", fy: "2025-26", ay: "2026-27", lastDate: "2026-10-31", extension: "", icon: "🏢", theme: "red", audit: "Yes", priority: "Urgent", description: "For cases where tax audit provisions apply.", active: true }
+        ];
+        let data = JSON.parse(localStorage.getItem(KEY) || "null") || defaults;
+        function save() { localStorage.setItem(KEY, JSON.stringify(data)) }
+        function dateObj(s) { return new Date(s + "T23:59:59") }
+        function status(item) {
+            const d = Math.ceil((dateObj(item.lastDate) - new Date()) / 86400000);
+            if (d < 0) return ["Expired", "red", Math.abs(d) + " days ago"];
+            if (d <= 7) return ["Due Soon", "red", d + " days left"];
+            if (d <= 30) return ["Approaching", "orange", d + " days left"];
+            return ["Upcoming", "green", d + " days left"];
+        }
+        function render() {
+            document.getElementById("today").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+            const el = document.getElementById("cards"); el.innerHTML = "";
+            const active = data.filter(x => x.active);
+            document.getElementById("empty").style.display = active.length ? "none" : "block";
+            active.forEach(x => {
+                const [st, cl, days] = status(x);
+                const ext = x.extension ? `<div><span class="label">Extension</span><span class="value">${format(x.extension)}</span></div>` : "";
+                el.insertAdjacentHTML("beforeend", `<article class="card ${cl}">
+   <div class="card-top"><span class="icon">${esc(x.icon || "📅")}</span><span class="badge ${cl === "orange" ? "orange" : cl === "red" ? "red" : ""}">${st}</span></div>
+   <div class="title">${esc(x.business)}</div><div class="muted">${esc(x.itr || "ITR")}</div>
+   <div class="deadline">${format(x.lastDate)}</div><div class="days">${days}</div>
+   <div class="info"><div><span class="label">Financial Year</span><span class="value">${esc(x.fy || "-")}</span></div><div><span class="label">Assessment Year</span><span class="value">${esc(x.ay || "-")}</span></div><div><span class="label">Tax Audit</span><span class="value">${esc(x.audit || "-")}</span></div><div><span class="label">Priority</span><span class="value">${esc(x.priority || "-")}</span></div>${ext}</div>
+   <div class="muted" style="margin-bottom:16px">${esc(x.description || "")}</div>
+   <div class="actions"><button class="secondary" onclick="edit('${x.id}')">✏️ Edit</button><button style="background:#fef2f2;color:#b91c1c" onclick="removeItem('${x.id}')">Delete</button></div>
+  </article>`);
+            });
+        }
+        function format(s) { if (!s) return "-"; return new Date(s + "T00:00:00").toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" }) }
+        function esc(s) { return String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m])) }
+        function openForm(item = null) {
+            document.getElementById("modal").classList.add("show"); document.getElementById("modalTitle").textContent = item ? "Edit Deadline" : "Add Deadline";
+            document.getElementById("form").reset(); document.getElementById("editId").value = item?.id || "";
+            if (item) for (const k of ["business", "itr", "fy", "ay", "lastDate", "extension", "icon", "theme", "audit", "priority", "description", "active"]) document.getElementById(k).value = item[k] ?? "";
+        }
+        function closeForm() { document.getElementById("modal").classList.remove("show") }
+        function edit(id) { openForm(data.find(x => x.id === id)) }
+        function removeItem(id) { if (confirm("Delete this deadline?")) { data = data.filter(x => x.id !== id); save(); render() } }
+        document.getElementById("form").addEventListener("submit", e => {
+            e.preventDefault(); const id = document.getElementById("editId").value;
+            const item = { id: id || crypto.randomUUID() };
+            for (const k of ["business", "itr", "fy", "ay", "lastDate", "extension", "icon", "theme", "audit", "priority", "description"]) item[k] = document.getElementById(k).value;
+            item.active = document.getElementById("active").value === "true";
+            if (id) data = data.map(x => x.id === id ? item : x); else data.push(item); save(); closeForm(); render();
+        });
+        render();
+    </script>
+</body>
+
+</html>
